@@ -15,10 +15,19 @@ namespace SableML
 		Library() = default;
 		~Library() = default;
 
+		Library(const Library&) = delete;
+		Library& operator=(const Library&) = delete;
+
+		static void Initialise();
+		static void Shutdown();
+		static Library& GetInstance();
+
 		void ScanDirectory(const fs::path& path, bool recursive = true);
 
 		bool save(const fs::path& path) const;
 		bool load(const fs::path& path);
+
+		const std::vector<Track>* GetTracks() const;
 
 		const FileEntry* getFile(FileID id) const;
 		Track* getTrackMutable(TrackID id);

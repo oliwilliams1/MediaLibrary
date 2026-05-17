@@ -20,6 +20,32 @@ using namespace SableML;
 
 static const std::vector<std::string> SUPPORTED_FORMATS = { ".mp3", ".flac", ".m4a", ".aac", ".ogg", ".opus", ".wav", ".aiff", ".wma" };
 
+static Library* s_libraryInstance = nullptr;
+
+void Library::Initialise()
+{
+	if (s_libraryInstance)
+		throw std::runtime_error("Library cannot be initialised twice");
+
+	s_libraryInstance = new Library();
+}
+
+void Library::Shutdown()
+{
+	if (!s_libraryInstance)
+		throw std::runtime_error("Library cannot be shutdown when not initialised");
+
+	delete s_libraryInstance;
+}
+
+Library& Library::GetInstance()
+{
+	if (!s_libraryInstance)
+		throw std::runtime_error("Library::GetInstance() called without a valid initialised state, will result in a nullptr dereference");
+
+	return *s_libraryInstance;
+}
+
 static bool isSupportedFile(const fs::path& path)
 {
 	std::string ext = path.extension().string();
@@ -205,6 +231,11 @@ std::optional<AudioProperties> Library::readProperties(const fs::path& path)
 	else if (ext == ".wma")		props.format = AudioProperties::Format::WMA;
 
 	return props;
+}
+
+const std::vector<Track>* Library::GetTracks() const
+{
+	return &m_tracks;
 }
 
 const FileEntry* Library::getFile(FileID id) const
